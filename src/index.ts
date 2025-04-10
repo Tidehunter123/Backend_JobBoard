@@ -42,7 +42,7 @@ app.options("*", (req, res) => {
   res.sendStatus(200);
 });
 
-app.use("/", routes);
+app.use("/api/", routes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
