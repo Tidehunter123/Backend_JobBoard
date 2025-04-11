@@ -1,6 +1,7 @@
 // Import necessary dependencies
 import Airtable from "airtable";
 import dotenv from "dotenv";
+import { supabase } from "../config/superbaseConfig";
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ interface JobFilters {
   keyword?: string;
   workTypes: string[];
   paymentTypes: string[];
+  user?: string;
 }
 
 interface JobsResponse {
@@ -167,6 +169,109 @@ export const getProJobsData = async (
     return { jobs, totalCount };
   } catch (error) {
     console.error("Error in getProJobsData:", error);
+    throw error;
+  }
+};
+
+// Function to get professional jobs data
+export const getJobsData = async (
+  filters: JobFilters,
+  page: number,
+  pageSize: number
+): Promise<JobsResponse> => {
+  try {
+    const { data: userData, error: userDataError } =
+      await supabase.auth.getUser(filters.user);
+
+    if (userDataError) {
+      throw new Error("Error getting user data: " + userDataError.message);
+    }
+
+    const email = userData?.user?.email;
+    if (!email) {
+      throw new Error("User email not found");
+    }
+
+    console.log(email, "email");
+    const userType = await base("Summer 2025 Apps")
+      .select({
+        view: "All Applications",
+        filterByFormula: `{Email} = '${email}'`,
+        fields: ["Canidate Type"],
+      })
+      .all();
+
+    if (!userType || userType.length === 0) {
+      throw new Error("User type not found");
+    }
+
+    const candidateType = userType[0].get("Canidate Type") as string;
+    console.log("Candidate Type:", candidateType);
+
+    const jobType =
+      candidateType === "Experienced Professional" ? "MBAs" : "Graduates";
+    console.log("Job Type:", jobType);
+
+    const baseFilter = `AND({Job Type} = '${jobType}', NOT({Status} = 'Not approved'))`;
+    const filterFormula = buildFilterFormula(baseFilter, filters);
+
+    const allRecords = await base("Job Postings")
+      .select({
+        view: "Grid view",
+        filterByFormula: filterFormula,
+        fields: [
+          "Job Posting Id",
+          "Company Name",
+          "Job Title",
+          "Ideal Start Date",
+          "Anticipated end date",
+          "Remote/In person",
+          "Location",
+          "Hours Per Week",
+          "Paid/Unpaid",
+          "Job Posting URL",
+          "Company Logo",
+          "Company Type",
+          "Company Description",
+          "ATS",
+          "External Link",
+          "Status",
+          "Job Type",
+        ],
+      })
+      .all();
+
+    const totalCount = allRecords.length;
+    const startIndex = (page - 1) * pageSize;
+    const paginatedRecords = allRecords.slice(
+      startIndex,
+      startIndex + pageSize
+    );
+
+    const jobs = paginatedRecords.map((record) => ({
+      id: record.id,
+      jobPostingId: record.get("Job Posting Id") as string,
+      companyName: record.get("Company Name") as string,
+      jobTitle: record.get("Job Title") as string,
+      idealStartDate: record.get("Ideal Start Date") as string,
+      anticipatedEndDate: record.get("Anticipated end date") as string,
+      remoteInPerson: record.get("Remote/In person") as string,
+      location: record.get("Location") as string,
+      hoursPerWeek: record.get("Hours Per Week") as number,
+      paidUnpaid: record.get("Paid/Unpaid") as string,
+      jobPostingURL: record.get("Job Posting URL") as string,
+      companyLogo: (record.get("Company Logo") as AttachmentField[]) || null,
+      companyType: record.get("Company Type") as string,
+      companyDescription: record.get("Company Description") as string,
+      ats: record.get("ATS") as string,
+      externalLink: record.get("External Link") as string,
+      status: record.get("Status") as string,
+      jobType: record.get("Job Type") as string,
+    }));
+
+    return { jobs, totalCount };
+  } catch (error) {
+    console.error("Error in getJobsData:", error);
     throw error;
   }
 };
