@@ -180,23 +180,23 @@ export const getJobsData = async (
   pageSize: number
 ): Promise<JobsResponse> => {
   try {
-    const { data: userData, error: userDataError } =
-      await supabase.auth.getUser(filters.user);
+    // const { data: userData, error: userDataError } =
+    //   await supabase.auth.getUser(filters.user);
 
-    if (userDataError) {
-      throw new Error("Error getting user data: " + userDataError.message);
-    }
+    // if (userDataError) {
+    //   throw new Error("Error getting user data: " + userDataError.message);
+    // }
 
-    const email = userData?.user?.email;
-    if (!email) {
-      throw new Error("User email not found");
-    }
+    // const email = userData?.user?.email;
+    // if (!email) {
+    //   throw new Error("User email not found");
+    // }
 
-    console.log(email, "email");
+    console.log(filters.user, "email");
     const userType = await base("Summer 2025 Apps")
       .select({
         view: "All Applications",
-        filterByFormula: `{Email} = '${email}'`,
+        filterByFormula: `{Email} = '${filters.user}'`,
         fields: ["Canidate Type"],
       })
       .all();
