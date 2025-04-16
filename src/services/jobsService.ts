@@ -209,7 +209,9 @@ export const getJobsData = async (
     console.log("Candidate Type:", candidateType);
 
     const jobType =
-      candidateType === "Experienced Professional" ? "MBAs" : "Graduates";
+      candidateType === "Experienced Professional"
+        ? "MBA / Experienced Hires"
+        : "Undergraduates";
     console.log("Job Type:", jobType);
 
     const baseFilter = `AND({Job Type} = '${jobType}', NOT({Status} = 'Not approved'))`;
