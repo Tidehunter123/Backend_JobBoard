@@ -180,68 +180,88 @@ export const getJobsData = async (
   pageSize: number
 ): Promise<JobsResponse> => {
   try {
-    // const { data: userData, error: userDataError } =
-    //   await supabase.auth.getUser(filters.user);
-
-    // if (userDataError) {
-    //   throw new Error("Error getting user data: " + userDataError.message);
-    // }
-
-    // const email = userData?.user?.email;
-    // if (!email) {
-    //   throw new Error("User email not found");
-    // }
-
     console.log(filters.user, "email");
-    const userType = await base("Summer 2025 Apps")
-      .select({
-        view: "All Applications",
-        filterByFormula: `{Email} = '${filters.user}'`,
-        fields: ["Canidate Type"],
-      })
-      .all();
+    let allRecords;
+    if (!filters.user) {
+      allRecords = await base("Job Postings")
+        .select({
+          view: "Grid view",
+          fields: [
+            "Job Posting Id",
+            "Company Name",
+            "Job Title",
+            "Ideal Start Date",
+            "Anticipated end date",
+            "Remote/In person",
+            "Location",
+            "Hours Per Week",
+            "Paid/Unpaid",
+            "Job Posting URL",
+            "Company Logo",
+            "Company Type",
+            "Company Description",
+            "ATS",
+            "External Link",
+            "Status",
+            "Job Type",
+            "Created_at",
+          ],
+          sort: [{ field: "Created_at", direction: "desc" }],
+        })
+        .all();
+    } else {
+      const userType = await base("Summer 2025 Apps")
+        .select({
+          view: "All Applications",
+          filterByFormula: `{Email} = '${filters.user}'`,
+          fields: ["Canidate Type"],
+        })
+        .all();
 
-    if (!userType || userType.length === 0) {
-      throw new Error("User type not found");
+      if (!userType || userType.length === 0) {
+        throw new Error("User type not found");
+      }
+
+      const candidateType = userType[0].get("Canidate Type") as string;
+      console.log("Candidate Type:", candidateType);
+
+      const jobType =
+        candidateType === "Experienced Professional"
+          ? "MBA / Experienced Hires"
+          : "Undergraduates";
+      console.log("Job Type:", jobType);
+
+      const baseFilter = `AND({Job Type} = '${jobType}', NOT({Status} = 'Not approved'))`;
+      const filterFormula = buildFilterFormula(baseFilter, filters);
+
+      allRecords = await base("Job Postings")
+        .select({
+          view: "Grid view",
+          filterByFormula: filterFormula,
+          fields: [
+            "Job Posting Id",
+            "Company Name",
+            "Job Title",
+            "Ideal Start Date",
+            "Anticipated end date",
+            "Remote/In person",
+            "Location",
+            "Hours Per Week",
+            "Paid/Unpaid",
+            "Job Posting URL",
+            "Company Logo",
+            "Company Type",
+            "Company Description",
+            "ATS",
+            "External Link",
+            "Status",
+            "Job Type",
+            "Created_at",
+          ],
+          sort: [{ field: "Created_at", direction: "desc" }],
+        })
+        .all();
     }
-
-    const candidateType = userType[0].get("Canidate Type") as string;
-    console.log("Candidate Type:", candidateType);
-
-    const jobType =
-      candidateType === "Experienced Professional"
-        ? "MBA / Experienced Hires"
-        : "Undergraduates";
-    console.log("Job Type:", jobType);
-
-    const baseFilter = `AND({Job Type} = '${jobType}', NOT({Status} = 'Not approved'))`;
-    const filterFormula = buildFilterFormula(baseFilter, filters);
-
-    const allRecords = await base("Job Postings")
-      .select({
-        view: "Grid view",
-        filterByFormula: filterFormula,
-        fields: [
-          "Job Posting Id",
-          "Company Name",
-          "Job Title",
-          "Ideal Start Date",
-          "Anticipated end date",
-          "Remote/In person",
-          "Location",
-          "Hours Per Week",
-          "Paid/Unpaid",
-          "Job Posting URL",
-          "Company Logo",
-          "Company Type",
-          "Company Description",
-          "ATS",
-          "External Link",
-          "Status",
-          "Job Type",
-        ],
-      })
-      .all();
 
     const totalCount = allRecords.length;
     const startIndex = (page - 1) * pageSize;
