@@ -183,9 +183,12 @@ export const getJobsData = async (
     console.log(filters.user, "email");
     let allRecords;
     if (!filters.user) {
+      const baseFilter = `NOT({Status} = 'Pending'))`;
+
       allRecords = await base("Job Postings")
         .select({
           view: "Grid view",
+          filterByFormula: `AND(${baseFilter}`,
           fields: [
             "Job Posting Id",
             "Company Name",
@@ -231,7 +234,7 @@ export const getJobsData = async (
           : "Undergraduates";
       console.log("Job Type:", jobType);
 
-      const baseFilter = `AND({Job Type} = '${jobType}', NOT({Status} = 'Not approved'))`;
+      const baseFilter = `AND({Job Type} = '${jobType}', NOT({Status} = 'Pending'))`;
       const filterFormula = buildFilterFormula(baseFilter, filters);
 
       allRecords = await base("Job Postings")
