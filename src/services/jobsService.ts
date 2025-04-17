@@ -48,6 +48,7 @@ interface JobFilters {
   keyword?: string;
   workTypes: string[];
   paymentTypes: string[];
+  jobTypes: string[];
   user?: string;
 }
 
@@ -96,6 +97,14 @@ const buildFilterFormula = (
       .map((type) => `{Paid/Unpaid} = '${type}'`)
       .join(", ");
     conditions.push(`OR(${paymentTypeConditions})`);
+  }
+
+  if (filters.jobTypes.length > 0) {
+    // For multiple select fields, we need to check if any of the selected values are in the field
+    const jobTypeConditions = filters.jobTypes
+      .map((type) => `FIND('${type}', {Job Type}) > 0`)
+      .join(", ");
+    conditions.push(`OR(${jobTypeConditions})`);
   }
 
   return `AND(${conditions.join(", ")})`;
@@ -182,89 +191,89 @@ export const getJobsData = async (
   try {
     console.log(filters.user, "email");
     let allRecords;
-    if (!filters.user) {
-      const baseFilter = `NOT({Status} = 'Pending'))`;
+    // if (!filters.user) {
+    //   const baseFilter = `NOT({Status} = 'Pending'))`;
 
-      allRecords = await base("Job Postings")
-        .select({
-          view: "Grid view",
-          filterByFormula: `AND(${baseFilter}`,
-          fields: [
-            "Job Posting Id",
-            "Company Name",
-            "Job Title",
-            "Ideal Start Date",
-            "Anticipated end date",
-            "Remote/In person",
-            "Location",
-            "Hours Per Week",
-            "Paid/Unpaid",
-            "Job Posting URL",
-            "Company Logo",
-            "Company Type",
-            "Company Description",
-            "ATS",
-            "External Link",
-            "Status",
-            "Job Type",
-            "Created_at",
-          ],
-          sort: [{ field: "Created_at", direction: "desc" }],
-        })
-        .all();
-    } else {
-      const userType = await base("SFF Candidate Database")
-        .select({
-          view: "All Applications",
-          filterByFormula: `{Email} = '${filters.user}'`,
-          fields: ["Canidate Type"],
-        })
-        .all();
+    //   allRecords = await base("Job Postings")
+    //     .select({
+    //       view: "Grid view",
+    //       filterByFormula: `AND(${baseFilter}`,
+    //       fields: [
+    //         "Job Posting Id",
+    //         "Company Name",
+    //         "Job Title",
+    //         "Ideal Start Date",
+    //         "Anticipated end date",
+    //         "Remote/In person",
+    //         "Location",
+    //         "Hours Per Week",
+    //         "Paid/Unpaid",
+    //         "Job Posting URL",
+    //         "Company Logo",
+    //         "Company Type",
+    //         "Company Description",
+    //         "ATS",
+    //         "External Link",
+    //         "Status",
+    //         "Job Type",
+    //         "Created_at",
+    //       ],
+    //       sort: [{ field: "Created_at", direction: "desc" }],
+    //     })
+    //     .all();
+    // } else {
+    // const userType = await base("SFF Candidate Database")
+    //   .select({
+    //     view: "All Applications",
+    //     filterByFormula: `{Email} = '${filters.user}'`,
+    //     fields: ["Canidate Type"],
+    //   })
+    //   .all();
 
-      if (!userType || userType.length === 0) {
-        throw new Error("User type not found");
-      }
+    // if (!userType || userType.length === 0) {
+    //   throw new Error("User type not found");
+    // }
 
-      const candidateType = userType[0].get("Canidate Type") as string;
-      console.log("Candidate Type:", candidateType);
+    // const candidateType = userType[0].get("Canidate Type") as string;
+    // console.log("Candidate Type:", candidateType);
 
-      const jobType =
-        candidateType === "Experienced Professional"
-          ? "MBA / Experienced Hires"
-          : "Undergraduates";
-      console.log("Job Type:", jobType);
+    // const jobType =
+    //   candidateType === "Experienced Professional"
+    //     ? "Experienced"
+    //     : "Early Career";
+    // console.log("Job Type:", jobType);
 
-      const baseFilter = `AND({Job Type} = '${jobType}', NOT({Status} = 'Pending'))`;
-      const filterFormula = buildFilterFormula(baseFilter, filters);
+    const baseFilter = `NOT({Status} = 'Pending'))`;
+    const filterFormula = buildFilterFormula(`AND(${baseFilter}`, filters);
 
-      allRecords = await base("Job Postings")
-        .select({
-          view: "Grid view",
-          filterByFormula: filterFormula,
-          fields: [
-            "Job Posting Id",
-            "Company Name",
-            "Job Title",
-            "Ideal Start Date",
-            "Anticipated end date",
-            "Remote/In person",
-            "Location",
-            "Hours Per Week",
-            "Paid/Unpaid",
-            "Job Posting URL",
-            "Company Logo",
-            "Company Type",
-            "Company Description",
-            "ATS",
-            "External Link",
-            "Status",
-            "Job Type",
-            "Created_at",
-          ],
-          sort: [{ field: "Created_at", direction: "desc" }],
-        })
-        .all();
-    }
+    allRecords = await base("Job Postings")
+      .select({
+        view: "Grid view",
+        filterByFormula: filterFormula,
+        fields: [
+          "Job Posting Id",
+          "Company Name",
+          "Job Title",
+          "Ideal Start Date",
+          "Anticipated end date",
+          "Remote/In person",
+          "Location",
+          "Hours Per Week",
+          "Paid/Unpaid",
+          "Job Posting URL",
+          "Company Logo",
+          "Company Type",
+          "Company Description",
+          "ATS",
+          "External Link",
+          "Status",
+          "Job Type",
+          "Created_at",
+        ],
+        sort: [{ field: "Created_at", direction: "desc" }],
+      })
+      .all();
+    // }
 
     const totalCount = allRecords.length;
     const startIndex = (page - 1) * pageSize;

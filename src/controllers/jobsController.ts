@@ -11,6 +11,7 @@ interface JobsQueryParams {
   keyword?: string;
   workTypes?: string;
   paymentTypes?: string;
+  jobTypes?: string;
   user?: string;
 }
 
@@ -21,7 +22,8 @@ export const getJobs = catchAsync(async (req: Request, res: Response) => {
       keyword,
       workTypes,
       paymentTypes,
-      user,
+      jobTypes,
+      // user,
     } = req.query as JobsQueryParams;
 
     const pageNumber = parseInt(page, 10);
@@ -31,7 +33,8 @@ export const getJobs = catchAsync(async (req: Request, res: Response) => {
       keyword,
       workTypes: workTypes?.split(",") || [],
       paymentTypes: paymentTypes?.split(",") || [],
-      user: user || "",
+      jobTypes: jobTypes?.split(",") || [],
+      // user: user || "",
     };
 
     const { jobs, totalCount } = await getJobsData(
@@ -62,6 +65,7 @@ export const getProJobs = catchAsync(async (req: Request, res: Response) => {
       keyword,
       workTypes,
       paymentTypes,
+      jobTypes,
     } = req.query as JobsQueryParams;
 
     const pageNumber = parseInt(page, 10);
@@ -71,6 +75,7 @@ export const getProJobs = catchAsync(async (req: Request, res: Response) => {
       keyword,
       workTypes: workTypes?.split(",") || [],
       paymentTypes: paymentTypes?.split(",") || [],
+      jobTypes: jobTypes?.split(",") || [],
     };
 
     const { jobs, totalCount } = await getProJobsData(
@@ -100,6 +105,7 @@ export const getComJobs = catchAsync(async (req: Request, res: Response) => {
       keyword,
       workTypes,
       paymentTypes,
+      jobTypes,
     } = req.query as JobsQueryParams;
 
     const pageNumber = parseInt(page, 10);
@@ -109,6 +115,7 @@ export const getComJobs = catchAsync(async (req: Request, res: Response) => {
       keyword,
       workTypes: workTypes?.split(",") || [],
       paymentTypes: paymentTypes?.split(",") || [],
+      jobTypes: jobTypes?.split(",") || [],
     };
 
     const { jobs, totalCount } = await getComJobsData(
