@@ -213,7 +213,7 @@ export const getJobsData = async (
         })
         .all();
     } else {
-      const userType = await base("SFF Candidate Databas")
+      const userType = await base("SFF Candidate Database")
         .select({
           view: "All Applications",
           filterByFormula: `{Email} = '${filters.user}'`,
