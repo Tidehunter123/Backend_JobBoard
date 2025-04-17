@@ -213,7 +213,7 @@ export const getJobsData = async (
         })
         .all();
     } else {
-      const userType = await base("Summer 2025 Apps")
+      const userType = await base("SFF Candidate Databas")
         .select({
           view: "All Applications",
           filterByFormula: `{Email} = '${filters.user}'`,
