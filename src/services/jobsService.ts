@@ -254,6 +254,7 @@ export const getJobsData = async (
           "Job Posting Id",
           "Company Name",
           "Job Title",
+          "Job Description",
           "Ideal Start Date",
           "Anticipated end date",
           "Remote/In person",
@@ -301,6 +302,7 @@ export const getJobsData = async (
       externalLink: record.get("External Link") as string,
       status: record.get("Status") as string,
       jobType: record.get("Job Type") as string,
+      jobDescription: record.get("Job Description") as string,
     }));
 
     return { jobs, totalCount };
