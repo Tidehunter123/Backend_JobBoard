@@ -243,7 +243,7 @@ export const getJobsData = async (
     //     : "Early Career";
     // console.log("Job Type:", jobType);
 
-    const baseFilter = `AND(NOT({Status} = 'Not approved'), NOT({Status} = 'Archived'))`;
+    const baseFilter = `AND({Status} = 'Approved')`;
     const filterFormula = buildFilterFormula(`AND(${baseFilter}`, filters);
 
     allRecords = await base("Job Postings")
