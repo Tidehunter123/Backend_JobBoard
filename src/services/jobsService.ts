@@ -241,9 +241,9 @@ export const getJobsData = async (
     //   candidateType === "Experienced Professional"
     //     ? "Experienced"
     //     : "Early Career";
-    // console.log("Job Type:", jobType);
+    // console.log("Job Type:", jobType); a
 
-    const baseFilter = `{Status} = 'Archived')`;
+    const baseFilter = `{Status} = 'Approved')`;
     const filterFormula = buildFilterFormula(`AND(${baseFilter}`, filters);
 
     allRecords = await base("Job Postings")
