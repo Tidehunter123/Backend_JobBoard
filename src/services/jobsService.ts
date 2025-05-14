@@ -42,6 +42,11 @@ interface JobPosting {
   externalLink: string;
   status: string;
   jobType: string;
+  created_At?: string;
+  jobDescription?: string;
+  email?: string;
+  website?: string;
+  applicationLink?: string;
 }
 
 interface JobFilters {
@@ -309,6 +314,41 @@ export const getJobsData = async (
     return { jobs, totalCount };
   } catch (error) {
     console.error("Error in getJobsData:", error);
+    throw error;
+  }
+};
+
+// Function to get job by id data
+export const getJobByIdData = async (id: string): Promise<JobPosting> => {
+  try {
+    const record = await base("Job Postings").find(id);
+    return {
+      id: record.id,
+      jobPostingId: record.get("Job Posting Id") as string,
+      companyName: record.get("Company Name") as string,
+      jobTitle: record.get("Job Title") as string,
+      idealStartDate: record.get("Ideal Start Date") as string,
+      anticipatedEndDate: record.get("Anticipated end date") as string,
+      remoteInPerson: record.get("Remote/In person") as string,
+      location: record.get("Location") as string,
+      hoursPerWeek: record.get("Hours Per Week") as number,
+      paidUnpaid: record.get("Paid/Unpaid") as string,
+      jobPostingURL: record.get("Job Posting URL") as string,
+      companyLogo: (record.get("Company Logo") as AttachmentField[]) || null,
+      companyType: record.get("Company Type") as string,
+      companyDescription: record.get("Company Description") as string,
+      ats: record.get("ATS") as string,
+      externalLink: record.get("External Link") as string,
+      status: record.get("Status") as string,
+      jobType: record.get("Job Type") as string,
+      created_At: record.get("Created_at") as string,
+      jobDescription: record.get("Job Description") as string,
+      email: record.get("Email") as string,
+      website: record.get("Company Website") as string,
+      applicationLink: record.get("Application Page URL") as string,
+    };
+  } catch (error) {
+    console.error("Error in getJobByIdData:", error);
     throw error;
   }
 };

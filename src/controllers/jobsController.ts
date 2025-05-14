@@ -4,6 +4,7 @@ import {
   getProJobsData,
   getComJobsData,
   getJobsData,
+  getJobByIdData,
 } from "../services/jobsService";
 
 interface JobsQueryParams {
@@ -54,6 +55,17 @@ export const getJobs = catchAsync(async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error in getProJobs:", error);
     res.status(500).json({ message: "Error fetching jobs data" });
+  }
+});
+
+export const getJobById = catchAsync(async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const job = await getJobByIdData(id);
+    res.status(200).json(job);
+  } catch (error) {
+    console.error("Error in getJobById:", error);
+    res.status(500).json({ message: "Error fetching job data" });
   }
 });
 
