@@ -303,6 +303,7 @@ export const getJobsData = async (
       status: record.get("Status") as string,
       jobType: record.get("Job Type") as string,
       jobDescription: record.get("Job Description") as string,
+      created_At: record.get("Created_at") as string,
     }));
 
     return { jobs, totalCount };
